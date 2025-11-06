@@ -66,7 +66,14 @@ def get_users():
 def create_user():
     """Create a new user"""
     try:
-        data = request.get_json()
+        data = request.get_json(force=True, silent=True)
+        
+        if data is None:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid or missing JSON data'
+            }), 400
+        
         username = data.get('username')
         email = data.get('email')
         
