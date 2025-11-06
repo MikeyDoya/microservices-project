@@ -1,6 +1,5 @@
-const db = require('../db');
-
 // Sample product data (in-memory storage for demonstration)
+// Note: This uses in-memory storage. For production, integrate with db.js for MySQL persistence
 let products = [
   {
     id: 1,
