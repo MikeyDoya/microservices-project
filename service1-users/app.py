@@ -30,8 +30,7 @@ def health_check():
         return jsonify({
             'status': 'unhealthy',
             'service': 'users-service',
-            'database': 'disconnected',
-            'error': str(e)
+            'database': 'disconnected'
         }), 503
 
 @app.route('/users', methods=['GET'])
@@ -59,7 +58,7 @@ def get_users():
     except Exception as e:
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Internal server error'
         }), 500
 
 @app.route('/users', methods=['POST'])
@@ -104,7 +103,7 @@ def create_user():
     except Exception as e:
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Internal server error'
         }), 500
 
 @app.route('/users/<int:user_id>', methods=['GET'])
@@ -133,7 +132,7 @@ def get_user(user_id):
     except Exception as e:
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Internal server error'
         }), 500
 
 if __name__ == '__main__':
