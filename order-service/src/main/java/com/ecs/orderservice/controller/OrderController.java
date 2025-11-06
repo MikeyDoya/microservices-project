@@ -41,22 +41,25 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+    public ResponseEntity<Map<String, Object>> createOrder(@RequestBody Order order) {
         try {
             Order createdOrder = orderService.createOrder(order);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                Map.of("order", createdOrder)
+            );
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Failed to create order");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order orderDetails) {
-        Order updatedOrder = orderService.updateOrder(id, orderDetails);
-        if (updatedOrder != null) {
-            return ResponseEntity.ok(updatedOrder);
-        }
-        return ResponseEntity.notFound().build();
+        Optional<Order> updatedOrder = orderService.updateOrder(id, orderDetails);
+        return updatedOrder.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

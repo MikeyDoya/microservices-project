@@ -29,7 +29,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public Order updateOrder(Long id, Order orderDetails) {
+    public Optional<Order> updateOrder(Long id, Order orderDetails) {
         Optional<Order> existingOrder = orderRepository.findById(id);
         if (existingOrder.isPresent()) {
             Order order = existingOrder.get();
@@ -38,9 +38,9 @@ public class OrderService {
             order.setQuantity(orderDetails.getQuantity());
             order.setTotalPrice(orderDetails.getTotalPrice());
             order.setStatus(orderDetails.getStatus());
-            return orderRepository.save(order);
+            return Optional.of(orderRepository.save(order));
         }
-        return null;
+        return Optional.empty();
     }
 
     public boolean deleteOrder(Long id) {
