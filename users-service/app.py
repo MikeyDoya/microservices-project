@@ -1,33 +1,75 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import json
-import psycopg2
 import os
+from flask import Flask, jsonify, request
+from database import get_db_connection  # ← NUEVA IMPORTACIÓN
 
-class UsersHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/health':
-            self.send_json(200, {"status": "healthy", "service": "users"})
-        elif self.path == '/api/users':
-            self.get_users()
+app = Flask(__name__)
+
+@app.route('/health', methods=['GET'])
+def health():
+    conn = get_db_connection()  # ← VERIFICA CONEXIÓN BD
+    if conn:
+        conn.close()
+        return jsonify({"status": "healthy", "service": "users", "database": "connected"})
+    else:
+        return jsonify({"status": "unhealthy", "service": "users", "database": "disconnected"}), 500
+
+@app.route('/api/users/register', methods=['POST'])
+def register():
+    try:
+        data = request.get_json()
+        conn = get_db_connection()  # ← CONEXIÓN REAL
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            'INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s) RETURNING id',
+            (data.get('name'), data.get('email'), data.get('password'))
+        )
+        
+        user_id = cursor.fetchone()[0]
+        conn.commit()
+        
+        return jsonify({
+            "id": user_id,
+            "name": data.get('name'),
+            "email": data.get('email'),
+            "message": "User registered successfully"
+        }), 201
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/users/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json()
+        conn = get_db_connection()  # ← CONEXIÓN REAL
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            'SELECT id, name, email FROM users WHERE email = %s AND password_hash = %s',
+            (data.get('email'), data.get('password'))
+        )
+        
+        user = cursor.fetchone()
+        if user:
+            return jsonify({
+                "id": user[0],
+                "name": user[1],
+                "email": user[2],
+                "message": "Login successful"
+            }), 200
         else:
-            self.send_error(404)
-    
-    def do_POST(self):
-        if self.path == '/api/users/login':
-            self.send_json(200, {"token": "fake-token", "user_id": 1})
-        elif self.path == '/api/users/register':
-            self.send_json(201, {"message": "User registered"})
-        else:
-            self.send_error(404)
-    
-    def get_users(self):
-        self.send_json(200, {"users": [{"id": 1, "email": "test@example.com"}]})
-    
-    def send_json(self, code, data):
-        self.send_response(code)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps(data).encode())
+            return jsonify({"error": "Invalid credentials"}), 401
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    finally:
+        cursor.close()
+        conn.close()
 
 if __name__ == '__main__':
-    HTTPServer(('', 80), UsersHandler).serve_forever()
+    port = int(os.getenv('PORT', 3000))
+    app.run(host='0.0.0.0', port=port)

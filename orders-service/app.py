@@ -1,32 +1,41 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import json
+import os
+from flask import Flask, jsonify, request
+from database import get_db_connection  # ← NUEVA IMPORTACIÓN
 
-class OrdersHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/health':
-            self.send_json(200, {"status": "healthy", "service": "orders"})
-        elif self.path == '/api/orders':
-            self.get_orders()
-        else:
-            self.send_error(404)
-    
-    def do_POST(self):
-        if self.path == '/api/orders':
-            self.create_order()
-        else:
-            self.send_error(404)
-    
-    def get_orders(self):
-        self.send_json(200, {"orders": [{"id": 1, "total": 99.99}]})
-    
-    def create_order(self):
-        self.send_json(201, {"order_id": 1, "status": "created"})
-    
-    def send_json(self, code, data):
-        self.send_response(code)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps(data).encode())
+app = Flask(__name__)
 
-if __name__ == '__main__':
-    HTTPServer(('', 80), OrdersHandler).serve_forever()
+@app.route('/health', methods=['GET'])
+def health():
+    conn = get_db_connection()  # ← VERIFICA CONEXIÓN BD
+    if conn:
+        conn.close()
+        return jsonify({"status": "healthy", "service": "orders", "database": "connected"})
+    else:
+        return jsonify({"status": "unhealthy", "service": "orders", "database": "disconnected"}), 500
+
+@app.route('/api/orders/cart', methods=['POST'])
+def add_to_cart():
+    try:
+        data = request.get_json()
+        conn = get_db_connection()  # ← CONEXIÓN REAL
+        
+        # Aquí tu lógica para guardar en BD
+        # Por ahora mantenemos la simulación
+        
+        cart_item = {
+            "id": 1,  # Simulado
+            "product_id": data.get('product_id'),
+            "product_name": data.get('product_name'),
+            "price": data.get('price'),
+            "quantity": data.get('quantity', 1)
+        }
+        
+        return jsonify({
+            "message": "Item added to cart",
+            "cart_item": cart_item
+        }), 201
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+# ... resto de endpoints
