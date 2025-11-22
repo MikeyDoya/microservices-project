@@ -1,0 +1,58 @@
+{
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "family": "orders-task-def",
+    "containerDefinitions": [
+        {
+            "name": "orders-container",
+            "image": "033481624682.dkr.ecr.us-east-1.amazonaws.com/orders-service:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 3001,
+                    "protocol": "tcp"
+                }
+            ],
+            "environment": [
+                {
+                    "name": "DB_HOST",
+                    "value": "postgresql-db.ce5ai8yimjho.us-east-1.rds.amazonaws.com"
+                },
+                {
+                    "name": "DB_NAME",
+                    "value": "microservices_database"
+                },
+                {
+                    "name": "DB_USER",
+                    "value": "postgres"
+                },
+                {
+                    "name": "DB_PASSWORD",
+                    "value": "MDnVnacVMRC9l5"
+                },
+                {
+                    "name": "DB_PORT",
+                    "value": "5432"
+                },
+                {
+                    "name": "PORT",
+                    "value": "3001"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/orders-service",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "volumes": [],
+    "networkMode": "awsvpc",
+    "memory": "512",
+    "cpu": "256",
+    "executionRoleArn": "arn:aws:iam::033481624682:role/ecsTaskExecutionRole"
+}
