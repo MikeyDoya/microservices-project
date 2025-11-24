@@ -89,5 +89,5 @@ Tags: latest, commit-hash, timestamp
 
 
 📄 Licencia
-Este proyecto está bajo la Licencia MIT - ver el archivo LICENSE.md para detalles.
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
 
