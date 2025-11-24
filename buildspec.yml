@@ -1,0 +1,138 @@
+version: 0.2
+
+env:
+  variables:
+    # === CONFIGURACIÓN AWS ===
+    AWS_ACCOUNT_ID: "033481624682"
+    AWS_DEFAULT_REGION: "us-east-1"
+    CLUSTER_NAME: "containers-cluster"
+    
+    # === REPOSITORIOS ECR ===
+    ECR_REPO_1: "033481624682.dkr.ecr.us-east-1.amazonaws.com/users-service"
+    ECR_REPO_2: "033481624682.dkr.ecr.us-east-1.amazonaws.com/orders-service"
+    ECR_REPO_3: "033481624682.dkr.ecr.us-east-1.amazonaws.com/products-service"
+    ECR_REPO_4: "033481624682.dkr.ecr.us-east-1.amazonaws.com/frontend"
+    
+    # === NOMBRES DE SERVICIOS ECS ===
+    SERVICE_1_NAME: "users-service"
+    SERVICE_2_NAME: "orders-service"
+    SERVICE_3_NAME: "products-service"
+    SERVICE_4_NAME: "frontend-service"
+    
+    # === NOMBRES DE TASK DEFINITIONS ===
+    TASK_DEF_1: "users-task-def"
+    TASK_DEF_2: "orders-task-def"
+    TASK_DEF_3: "products-task-def"
+    TASK_DEF_4: "frontend-task-def"
+
+phases:
+  pre_build:
+    commands:
+      - echo "=== INICIANDO BUILD PARA 4 SERVICIOS CON DOCKERFILES SEPARADOS ==="
+      - echo "Commit: $CODEBUILD_RESOLVED_SOURCE_VERSION"
+      - echo "Cluster: $CLUSTER_NAME"
+      - echo "Region: $AWS_DEFAULT_REGION"
+      - echo "Cuenta: $AWS_ACCOUNT_ID"
+      - echo "Servicio 1: $SERVICE_1_NAME/Dockerfile → $ECR_REPO_1"
+      - echo "Servicio 2: $SERVICE_2_NAME/Dockerfile → $ECR_REPO_2" 
+      - echo "Servicio 3: $SERVICE_3_NAME/Dockerfile → $ECR_REPO_3"
+      - echo "Servicio 4: $SERVICE_4_NAME/Dockerfile → $ECR_REPO_4"
+      
+      # Login a ECR
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      
+      # Tags para las imágenes
+      - export COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - export IMAGE_TAG=${COMMIT_HASH:-latest}
+      - export TIMESTAMP=$(date +%Y%m%d%H%M%S)
+
+  build:
+    commands:
+      - echo "=== CONSTRUYENDO 4 IMÁGENES DOCKER SEPARADAS ==="
+      
+      # Servicio 1 - docker build
+      - echo "Construyendo $SERVICE_1_NAME desde $SERVICE_1_NAME/Dockerfile..."
+      - cd $SERVICE_1_NAME
+      - docker build -t $ECR_REPO_1:latest -t $ECR_REPO_1:$IMAGE_TAG -t $ECR_REPO_1:$TIMESTAMP -f Dockerfile .
+      - cd ..
+      
+      # Servicio 2 - docker build
+      - echo "Construyendo $SERVICE_2_NAME desde $SERVICE_2_NAME/Dockerfile..."
+      - cd $SERVICE_2_NAME
+      - docker build -t $ECR_REPO_2:latest -t $ECR_REPO_2:$IMAGE_TAG -t $ECR_REPO_2:$TIMESTAMP -f Dockerfile .
+      - cd ..
+      
+      # Servicio 3 - docker build
+      - echo "Construyendo $SERVICE_3_NAME desde $SERVICE_3_NAME/Dockerfile..."
+      - cd $SERVICE_3_NAME
+      - docker build -t $ECR_REPO_3:latest -t $ECR_REPO_3:$IMAGE_TAG -t $ECR_REPO_3:$TIMESTAMP -f Dockerfile .
+      - cd ..
+      
+      # Servicio 4 - docker build
+      - echo "Construyendo $SERVICE_4_NAME desde $SERVICE_4_NAME/Dockerfile..."
+      - cd $SERVICE_4_NAME
+      - docker build -t $ECR_REPO_4:latest -t $ECR_REPO_4:$IMAGE_TAG -t $ECR_REPO_4:$TIMESTAMP -f Dockerfile .
+      - cd ..
+
+  post_build:
+    commands:
+      - echo "=== SUBIENDO 4 IMÁGENES A ECR REPOS SEPARADOS ==="
+      
+      # Push de todas las imágenes a sus repositorios respectivos
+      - echo "Subiendo $SERVICE_1_NAME a ECR..."
+      - docker push $ECR_REPO_1:latest
+      - docker push $ECR_REPO_1:$IMAGE_TAG
+      - docker push $ECR_REPO_1:$TIMESTAMP
+      
+      - echo "Subiendo $SERVICE_2_NAME a ECR..."
+      - docker push $ECR_REPO_2:latest
+      - docker push $ECR_REPO_2:$IMAGE_TAG  
+      - docker push $ECR_REPO_2:$TIMESTAMP
+      
+      - echo "Subiendo $SERVICE_3_NAME a ECR..."
+      - docker push $ECR_REPO_3:latest
+      - docker push $ECR_REPO_3:$IMAGE_TAG
+      - docker push $ECR_REPO_3:$TIMESTAMP
+      
+      - echo "Subiendo $SERVICE_4_NAME a ECR..."
+      - docker push $ECR_REPO_4:latest
+      - docker push $ECR_REPO_4:$IMAGE_TAG
+      - docker push $ECR_REPO_4:$TIMESTAMP
+      
+      - echo "=== ACTUALIZANDO 4 TASK DEFINITIONS SEPARADAS ==="
+      
+      # Actualizar task definitions para Blue/Green
+      - echo "Actualizando task definition para $SERVICE_1_NAME..."
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_1_NAME/TASK_DEF_1.json --region $AWS_DEFAULT_REGION
+      
+      - echo "Actualizando task definition para $SERVICE_2_NAME..."
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_2_NAME/TASK_DEF_2.json --region $AWS_DEFAULT_REGION
+      
+      - echo "Actualizando task definition para $SERVICE_3_NAME..."
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_3_NAME/TASK_DEF_3.json --region $AWS_DEFAULT_REGION
+      
+      - echo "Actualizando task definition para $SERVICE_4_NAME..."
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_4_NAME/TASK_DEF_4.json --region $AWS_DEFAULT_REGION
+      
+      - echo "=== INICIANDO BLUE/GREEN DEPLOYMENT PARA 4 SERVICIOS ==="
+      
+      # Trigger Blue/Green deployment para cada servicio
+      - echo "Desplegando $SERVICE_1_NAME..."
+      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_1_NAME --task-definition $TASK_DEF_1 --region $AWS_DEFAULT_REGION
+      
+      - echo "Desplegando $SERVICE_2_NAME..."
+      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_2_NAME --task-definition $TASK_DEF_2 --region $AWS_DEFAULT_REGION  
+      
+      - echo "Desplegando $SERVICE_3_NAME..."
+      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_3_NAME --task-definition $TASK_DEF_3 --region $AWS_DEFAULT_REGION
+      
+      - echo "Desplegando $SERVICE_4_NAME..."
+      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_4_NAME --task-definition $TASK_DEF_4 --region $AWS_DEFAULT_REGION
+      
+      - echo "=== BUILD COMPLETADO ==="
+      - echo "4 servicios desplegados via Blue/Green:"
+      - echo "- $SERVICE_1_NAME: $ECR_REPO_1:$IMAGE_TAG"
+      - echo "- $SERVICE_2_NAME: $ECR_REPO_2:$IMAGE_TAG" 
+      - echo "- $SERVICE_3_NAME: $ECR_REPO_3:$IMAGE_TAG"
+      - echo "- $SERVICE_4_NAME: $ECR_REPO_4:$IMAGE_TAG"
