@@ -92,13 +92,13 @@ phases:
       - echo "=== ACTUALIZANDO 4 TASK DEFINITIONS SEPARADAS ==="
       # Actualizar task definitions para Blue/Green
       - echo "Actualizando task definition para $SERVICE_1_NAME..."
-      - aws ecs register-task-definition --cli-input-json file://$SERVICE_1_NAME/TASK_DEF_1.json --region $AWS_DEFAULT_REGION
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_1_NAME/$TASK_DEF_1.json --region $AWS_DEFAULT_REGION
       - echo "Actualizando task definition para $SERVICE_2_NAME..."
-      - aws ecs register-task-definition --cli-input-json file://$SERVICE_2_NAME/TASK_DEF_2.json --region $AWS_DEFAULT_REGION
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_2_NAME/$TASK_DEF_2.json --region $AWS_DEFAULT_REGION
       - echo "Actualizando task definition para $SERVICE_3_NAME..."
-      - aws ecs register-task-definition --cli-input-json file://$SERVICE_3_NAME/TASK_DEF_3.json --region $AWS_DEFAULT_REGION
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_3_NAME/$TASK_DEF_3.json --region $AWS_DEFAULT_REGION
       - echo "Actualizando task definition para $SERVICE_4_NAME..."
-      - aws ecs register-task-definition --cli-input-json file://$SERVICE_4_NAME/TASK_DEF_4.json --region $AWS_DEFAULT_REGION
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_4_NAME/$TASK_DEF_4.json --region $AWS_DEFAULT_REGION
       - echo "=== INICIANDO BLUE/GREEN DEPLOYMENT PARA 4 SERVICIOS ==="
       # Trigger Blue/Green deployment para cada servicio
       - echo "Desplegando $SERVICE_1_NAME..."
