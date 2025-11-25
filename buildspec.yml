@@ -34,7 +34,7 @@ phases:
       - echo "Region: $AWS_DEFAULT_REGION"
       - echo "Cuenta: $AWS_ACCOUNT_ID"
       - echo "Servicio 1: $SERVICE_1_NAME/Dockerfile → $ECR_REPO_1"
-      - echo "Servicio 2: $SERVICE_2_NAME/Dockerfile → $ECR_REPO_2"
+      - echo "Servicio 2: $SERVICE_2_NAME/Dockerfile → $ECR_REPO_2" 
       - echo "Servicio 3: $SERVICE_3_NAME/Dockerfile → $ECR_REPO_3"
       - echo "Servicio 4: $SERVICE_4_NAME/Dockerfile → $ECR_REPO_4"
       # Login a ECR
@@ -79,7 +79,7 @@ phases:
       - docker push $ECR_REPO_1:$TIMESTAMP
       - echo "Subiendo $SERVICE_2_NAME a ECR..."
       - docker push $ECR_REPO_2:latest
-      - docker push $ECR_REPO_2:$IMAGE_TAG
+      - docker push $ECR_REPO_2:$IMAGE_TAG  
       - docker push $ECR_REPO_2:$TIMESTAMP
       - echo "Subiendo $SERVICE_3_NAME a ECR..."
       - docker push $ECR_REPO_3:latest
@@ -92,19 +92,19 @@ phases:
       - echo "=== ACTUALIZANDO 4 TASK DEFINITIONS SEPARADAS ==="
       # Actualizar task definitions para Blue/Green
       - echo "Actualizando task definition para $SERVICE_1_NAME..."
-      - aws ecs register-task-definition --cli-input-json file://$SERVICE_1_NAME/$TASK_DEF_1.json --region $AWS_DEFAULT_REGION
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_1_NAME/TASK_DEF_1.json --region $AWS_DEFAULT_REGION
       - echo "Actualizando task definition para $SERVICE_2_NAME..."
-      - aws ecs register-task-definition --cli-input-json file://$SERVICE_2_NAME/$TASK_DEF_2.json --region $AWS_DEFAULT_REGION
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_2_NAME/TASK_DEF_2.json --region $AWS_DEFAULT_REGION
       - echo "Actualizando task definition para $SERVICE_3_NAME..."
-      - aws ecs register-task-definition --cli-input-json file://$SERVICE_3_NAME/$TASK_DEF_3.json --region $AWS_DEFAULT_REGION
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_3_NAME/TASK_DEF_3.json --region $AWS_DEFAULT_REGION
       - echo "Actualizando task definition para $SERVICE_4_NAME..."
-      - aws ecs register-task-definition --cli-input-json file://$SERVICE_4_NAME/$TASK_DEF_4.json --region $AWS_DEFAULT_REGION
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_4_NAME/TASK_DEF_4.json --region $AWS_DEFAULT_REGION
       - echo "=== INICIANDO BLUE/GREEN DEPLOYMENT PARA 4 SERVICIOS ==="
       # Trigger Blue/Green deployment para cada servicio
       - echo "Desplegando $SERVICE_1_NAME..."
       - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_1_NAME --task-definition $TASK_DEF_1 --region $AWS_DEFAULT_REGION
       - echo "Desplegando $SERVICE_2_NAME..."
-      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_2_NAME --task-definition $TASK_DEF_2 --region $AWS_DEFAULT_REGION
+      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_2_NAME --task-definition $TASK_DEF_2 --region $AWS_DEFAULT_REGION  
       - echo "Desplegando $SERVICE_3_NAME..."
       - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_3_NAME --task-definition $TASK_DEF_3 --region $AWS_DEFAULT_REGION
       - echo "Desplegando $SERVICE_4_NAME..."
@@ -112,6 +112,6 @@ phases:
       - echo "=== BUILD COMPLETADO ==="
       - echo "4 servicios desplegados via Blue/Green:"
       - echo "- $SERVICE_1_NAME: $ECR_REPO_1:$IMAGE_TAG"
-      - echo "- $SERVICE_2_NAME: $ECR_REPO_2:$IMAGE_TAG"
+      - echo "- $SERVICE_2_NAME: $ECR_REPO_2:$IMAGE_TAG" 
       - echo "- $SERVICE_3_NAME: $ECR_REPO_3:$IMAGE_TAG"
       - echo "- $SERVICE_4_NAME: $ECR_REPO_4:$IMAGE_TAG"
