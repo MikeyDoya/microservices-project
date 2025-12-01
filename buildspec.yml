@@ -5,12 +5,10 @@ env:
     AWS_ACCOUNT_ID: "033481624682"
     AWS_DEFAULT_REGION: "us-east-1"
     CLUSTER_NAME: "containers-cluster"
-    # Variables de Repositorios (No cambian)
     ECR_REPO_1: "033481624682.dkr.ecr.us-east-1.amazonaws.com/users-service"
     ECR_REPO_2: "033481624682.dkr.ecr.us-east-1.amazonaws.com/orders-service"
     ECR_REPO_3: "033481624682.dkr.ecr.us-east-1.amazonaws.com/products-service"
     ECR_REPO_4: "033481624682.dkr.ecr.us-east-1.amazonaws.com/frontend"
-    # Nombres de Servicio y Archivos
     SERVICE_1_NAME: "users-service"
     SERVICE_2_NAME: "orders-service"
     SERVICE_3_NAME: "products-service"
@@ -21,93 +19,87 @@ env:
     TASK_DEF_4: "frontend-task-def"
 
 phases:
-  install:
-    runtime-versions:
-      docker: 20
-    commands:
-      - echo "Instalando utilidades necesarias..."
-      - yum install -y jq # Necesario para editar los JSON de TaskDef al vuelo
-
   pre_build:
     commands:
-      - echo "=== FASE PRE-BUILD ==="
+      - echo "=== INICIANDO BUILD PARA 4 SERVICIOS CON DOCKERFILES SEPARADOS ==="
+      - echo "Commit: $CODEBUILD_RESOLVED_SOURCE_VERSION"
+      - echo "Cluster: $CLUSTER_NAME"
+      - echo "Region: $AWS_DEFAULT_REGION"
+      - echo "Cuenta: $AWS_ACCOUNT_ID"
+      - echo "Servicio 1: $SERVICE_1_NAME/Dockerfile → $ECR_REPO_1"
+      - echo "Servicio 2: $SERVICE_2_NAME/Dockerfile → $ECR_REPO_2"
+      - echo "Servicio 3: $SERVICE_3_NAME/Dockerfile → $ECR_REPO_3"
+      - echo "Servicio 4: $SERVICE_4_NAME/Dockerfile → $ECR_REPO_4"
       - echo "Logging in to Amazon ECR..."
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - export COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - export IMAGE_TAG=${COMMIT_HASH:=latest}
-      - export TIMESTAMP=$(date +%Y%m%d%H%M%S)
-      - echo "Tag de compilación: $IMAGE_TAG-$TIMESTAMP"
-
+      - "aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+      - "export COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)"
+      - "export IMAGE_TAG=${COMMIT_HASH:-latest}"
+      - "export TIMESTAMP=$(date +%Y%m%d%H%M%S)"
+  
   build:
     commands:
-      - echo "=== CONSTRUYENDO IMÁGENES DOCKER ==="
-      # SERVICIO 1
-      - echo "Building $SERVICE_1_NAME..."
+      - echo "=== CONSTRUYENDO 4 IMÁGENES DOCKER SEPARADAS ==="
+      - echo "Construyendo $SERVICE_1_NAME desde $SERVICE_1_NAME/Dockerfile..."
       - cd $SERVICE_1_NAME
-      - docker build -t $ECR_REPO_1:latest -t $ECR_REPO_1:$IMAGE_TAG-$TIMESTAMP .
+      - docker build -t $ECR_REPO_1:latest -t $ECR_REPO_1:$IMAGE_TAG -t $ECR_REPO_1:$TIMESTAMP -f Dockerfile .
       - cd ..
-      # SERVICIO 2
-      - echo "Building $SERVICE_2_NAME..."
+      - echo "Construyendo $SERVICE_2_NAME desde $SERVICE_2_NAME/Dockerfile..."
       - cd $SERVICE_2_NAME
-      - docker build -t $ECR_REPO_2:latest -t $ECR_REPO_2:$IMAGE_TAG-$TIMESTAMP .
+      - docker build -t $ECR_REPO_2:latest -t $ECR_REPO_2:$IMAGE_TAG -t $ECR_REPO_2:$TIMESTAMP -f Dockerfile .
       - cd ..
-      # SERVICIO 3
-      - echo "Building $SERVICE_3_NAME..."
+      - echo "Construyendo $SERVICE_3_NAME desde $SERVICE_3_NAME/Dockerfile..."
       - cd $SERVICE_3_NAME
-      - docker build -t $ECR_REPO_3:latest -t $ECR_REPO_3:$IMAGE_TAG-$TIMESTAMP .
+      - docker build -t $ECR_REPO_3:latest -t $ECR_REPO_3:$IMAGE_TAG -t $ECR_REPO_3:$TIMESTAMP -f Dockerfile .
       - cd ..
-      # SERVICIO 4
-      - echo "Building $SERVICE_4_NAME..."
+      - echo "Construyendo $SERVICE_4_NAME desde $SERVICE_4_NAME/Dockerfile..."
       - cd $SERVICE_4_NAME
-      - docker build -t $ECR_REPO_4:latest -t $ECR_REPO_4:$IMAGE_TAG-$TIMESTAMP .
+      - docker build -t $ECR_REPO_4:latest -t $ECR_REPO_4:$IMAGE_TAG -t $ECR_REPO_4:$TIMESTAMP -f Dockerfile .
       - cd ..
-
+  
   post_build:
     commands:
-      - echo "=== SUBIENDO IMÁGENES A ECR ==="
+      - echo "=== SUBIENDO 4 IMÁGENES A ECR REPOS SEPARADOS ==="
+      - echo "Subiendo $SERVICE_1_NAME a ECR..."
       - docker push $ECR_REPO_1:latest
-      - docker push $ECR_REPO_1:$IMAGE_TAG-$TIMESTAMP
+      - docker push $ECR_REPO_1:$IMAGE_TAG
+      - docker push $ECR_REPO_1:$TIMESTAMP
+      - echo "Subiendo $SERVICE_2_NAME a ECR..."
       - docker push $ECR_REPO_2:latest
-      - docker push $ECR_REPO_2:$IMAGE_TAG-$TIMESTAMP
+      - docker push $ECR_REPO_2:$IMAGE_TAG
+      - docker push $ECR_REPO_2:$TIMESTAMP
+      - echo "Subiendo $SERVICE_3_NAME a ECR..."
       - docker push $ECR_REPO_3:latest
-      - docker push $ECR_REPO_3:$IMAGE_TAG-$TIMESTAMP
+      - docker push $ECR_REPO_3:$IMAGE_TAG
+      - docker push $ECR_REPO_3:$TIMESTAMP
+      - echo "Subiendo $SERVICE_4_NAME a ECR..."
       - docker push $ECR_REPO_4:latest
-      - docker push $ECR_REPO_4:$IMAGE_TAG-$TIMESTAMP
-
-      - echo "=== ACTUALIZANDO TASK DEFINITIONS Y SERVICIOS ==="
-      # NOTA: Usamos 'jq' para inyectar la nueva imagen en el JSON antes de registrarlo.
-      # Esto asume que tu JSON tiene una estructura estándar de ECS.
-      
-      # SERVICIO 1
+      - docker push $ECR_REPO_4:$IMAGE_TAG
+      - docker push $ECR_REPO_4:$TIMESTAMP
+      - echo "=== ACTUALIZANDO 4 TASK DEFINITIONS SEPARADAS ==="
+      - echo "Actualizando task definition para $SERVICE_1_NAME..."
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_1_NAME/$TASK_DEF_1.json --region $AWS_DEFAULT_REGION
+      - echo "Actualizando task definition para $SERVICE_2_NAME..."
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_2_NAME/$TASK_DEF_2.json --region $AWS_DEFAULT_REGION
+      - echo "Actualizando task definition para $SERVICE_3_NAME..."
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_3_NAME/$TASK_DEF_3.json --region $AWS_DEFAULT_REGION
+      - echo "Actualizando task definition para $SERVICE_4_NAME..."
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_4_NAME/$TASK_DEF_4.json --region $AWS_DEFAULT_REGION
+      - echo "=== INICIANDO BLUE/GREEN DEPLOYMENT PARA 4 SERVICIOS ==="
       - echo "Desplegando $SERVICE_1_NAME..."
-      - tmp=$(mktemp)
-      - jq --arg IMAGE "$ECR_REPO_1:$IMAGE_TAG-$TIMESTAMP" '.containerDefinitions[0].image = $IMAGE' $SERVICE_1_NAME/$TASK_DEF_1.json > "$tmp" && mv "$tmp" $SERVICE_1_NAME/$TASK_DEF_1.json
-      - export NEW_TASK_DEF_1=$(aws ecs register-task-definition --cli-input-json file://$SERVICE_1_NAME/$TASK_DEF_1.json --region $AWS_DEFAULT_REGION --query 'taskDefinition.taskDefinitionArn' --output text)
-      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_1_NAME --task-definition $NEW_TASK_DEF_1 --region $AWS_DEFAULT_REGION
-      
-      # SERVICIO 2
+      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_1_NAME --task-definition $TASK_DEF_1 --region $AWS_DEFAULT_REGION
       - echo "Desplegando $SERVICE_2_NAME..."
-      - tmp=$(mktemp)
-      - jq --arg IMAGE "$ECR_REPO_2:$IMAGE_TAG-$TIMESTAMP" '.containerDefinitions[0].image = $IMAGE' $SERVICE_2_NAME/$TASK_DEF_2.json > "$tmp" && mv "$tmp" $SERVICE_2_NAME/$TASK_DEF_2.json
-      - export NEW_TASK_DEF_2=$(aws ecs register-task-definition --cli-input-json file://$SERVICE_2_NAME/$TASK_DEF_2.json --region $AWS_DEFAULT_REGION --query 'taskDefinition.taskDefinitionArn' --output text)
-      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_2_NAME --task-definition $NEW_TASK_DEF_2 --region $AWS_DEFAULT_REGION
-
-      # SERVICIO 3
+      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_2_NAME --task-definition $TASK_DEF_2 --region $AWS_DEFAULT_REGION
       - echo "Desplegando $SERVICE_3_NAME..."
-      - tmp=$(mktemp)
-      - jq --arg IMAGE "$ECR_REPO_3:$IMAGE_TAG-$TIMESTAMP" '.containerDefinitions[0].image = $IMAGE' $SERVICE_3_NAME/$TASK_DEF_3.json > "$tmp" && mv "$tmp" $SERVICE_3_NAME/$TASK_DEF_3.json
-      - export NEW_TASK_DEF_3=$(aws ecs register-task-definition --cli-input-json file://$SERVICE_3_NAME/$TASK_DEF_3.json --region $AWS_DEFAULT_REGION --query 'taskDefinition.taskDefinitionArn' --output text)
-      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_3_NAME --task-definition $NEW_TASK_DEF_3 --region $AWS_DEFAULT_REGION
-
-      # SERVICIO 4
+      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_3_NAME --task-definition $TASK_DEF_3 --region $AWS_DEFAULT_REGION
       - echo "Desplegando $SERVICE_4_NAME..."
-      - tmp=$(mktemp)
-      - jq --arg IMAGE "$ECR_REPO_4:$IMAGE_TAG-$TIMESTAMP" '.containerDefinitions[0].image = $IMAGE' $SERVICE_4_NAME/$TASK_DEF_4.json > "$tmp" && mv "$tmp" $SERVICE_4_NAME/$TASK_DEF_4.json
-      - export NEW_TASK_DEF_4=$(aws ecs register-task-definition --cli-input-json file://$SERVICE_4_NAME/$TASK_DEF_4.json --region $AWS_DEFAULT_REGION --query 'taskDefinition.taskDefinitionArn' --output text)
-      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_4_NAME --task-definition $NEW_TASK_DEF_4 --region $AWS_DEFAULT_REGION
-
-      - echo "=== DESPLIEGUE FINALIZADO EXITOSAMENTE ==="
-
+      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_4_NAME --task-definition $TASK_DEF_4 --region $AWS_DEFAULT_REGION
+      - echo "=== BUILD COMPLETADO ==="
+      - echo "4 servicios desplegados via Blue/Green:"
+      - echo "- $SERVICE_1_NAME: $ECR_REPO_1:$IMAGE_TAG"
+      - echo "- $SERVICE_2_NAME: $ECR_REPO_2:$IMAGE_TAG"
+      - echo "- $SERVICE_3_NAME: $ECR_REPO_3:$IMAGE_TAG"
+      - echo "- $SERVICE_4_NAME: $ECR_REPO_4:$IMAGE_TAG"
+# Minimal artifacts for ECS deployment
 artifacts:
   files:
-    - '**/*'
+    - imagedefinitions.json
