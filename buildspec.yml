@@ -95,11 +95,11 @@ phases:
       - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_4_NAME --task-definition $TASK_DEF_4 --region $AWS_DEFAULT_REGION
       - echo "=== BUILD COMPLETADO ==="
       - echo "4 servicios desplegados via Blue/Green:"
-      - echo "- $SERVICE_1_NAME: $ECR_REPO_1:$IMAGE_TAG"
-      - echo "- $SERVICE_2_NAME: $ECR_REPO_2:$IMAGE_TAG"
-      - echo "- $SERVICE_3_NAME: $ECR_REPO_3:$IMAGE_TAG"
-      - echo "- $SERVICE_4_NAME: $ECR_REPO_4:$IMAGE_TAG"
-# Minimal artifacts for ECS deployment
+      - "echo '- $SERVICE_1_NAME -> $ECR_REPO_1:$IMAGE_TAG'"
+      - "echo '- $SERVICE_2_NAME -> $ECR_REPO_2:$IMAGE_TAG'"
+      - "echo '- $SERVICE_3_NAME -> $ECR_REPO_3:$IMAGE_TAG'"
+      - "echo '- $SERVICE_4_NAME -> $ECR_REPO_4:$IMAGE_TAG'"
+
 artifacts:
   files:
     - imagedefinitions.json
