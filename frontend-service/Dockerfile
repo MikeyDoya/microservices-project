@@ -11,7 +11,7 @@ RUN npm install --include=dev
 COPY . .
 
 # Build the app
-RUN npm run build
+RUN ./node_modules/vite/bin/vite.js build
 
 # Production stage
 FROM public.ecr.aws/docker/library/nginx:alpine
