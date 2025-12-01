@@ -38,7 +38,7 @@ phases:
   
   build:
     commands:
-      - echo "=== CONSTRUYENDO 4 IMÁGENES DOCKER SEPARADAS ==="
+      - echo "=== CONSTRUYENDO 4 IMAGENES DOCKER SEPARADAS ==="
       - echo "Construyendo $SERVICE_1_NAME desde $SERVICE_1_NAME/Dockerfile..."
       - cd $SERVICE_1_NAME
       - docker build -t $ECR_REPO_1:latest -t $ECR_REPO_1:$IMAGE_TAG -t $ECR_REPO_1:$TIMESTAMP -f Dockerfile .
@@ -58,7 +58,7 @@ phases:
   
   post_build:
     commands:
-      - echo "=== SUBIENDO 4 IMÁGENES A ECR REPOS SEPARADOS ==="
+      - echo "=== SUBIENDO 4 IMAGENES A ECR REPOS SEPARADOS ==="
       - echo "Subiendo $SERVICE_1_NAME a ECR..."
       - docker push $ECR_REPO_1:latest
       - docker push $ECR_REPO_1:$IMAGE_TAG
