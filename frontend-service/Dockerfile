@@ -14,7 +14,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM public.ecr.aws/docker/library/nginx:alpine
 
 # Copy built app
 COPY --from=build /app/dist /usr/share/nginx/html
