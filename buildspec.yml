@@ -98,7 +98,3 @@ phases:
       - "echo '- $SERVICE_2_NAME -> $ECR_REPO_2:$IMAGE_TAG'"
       - "echo '- $SERVICE_3_NAME -> $ECR_REPO_3:$IMAGE_TAG'"
       - "echo '- $SERVICE_4_NAME -> $ECR_REPO_4:$IMAGE_TAG'"
-
-artifacts:
-  files:
-    - imagedefinitions.json
