@@ -19,7 +19,7 @@ Docker instalado localmente para desarrollo
 
 Roles IAM necesarios:
 
-CodeBuildServiceRole (para CodeBuild con permisos ECR/ECS)
+CodeBuildServiceRole (para CodeBuild con permisos ECR/ECS y passRole permission)
 
 ecsTaskExecutionRole (para ejecución de tasks ECS)
 
