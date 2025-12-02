@@ -3,7 +3,7 @@ import React from 'react';
 const Header = ({ user, setUser, currentView, setCurrentView, cartCount }) => {
   return (
     <header className="header">
-      <h1>👟 Tralalero tralala</h1>
+      <h1>👟 Tienda de zapatillas</h1>
       <nav className="nav">
         {user ? (
           <>
