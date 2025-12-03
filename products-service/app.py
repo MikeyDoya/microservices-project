@@ -4,6 +4,10 @@ from database import get_db_connection
 
 app = Flask(__name__)
 
+@app.route('/api/products/health', methods=['GET'])
+def health_products():
+    return health()
+
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint para ALB Target Groups"""
