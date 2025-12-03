@@ -25,7 +25,7 @@ const ProductCatalog = ({ cart, setCart }) => {
           name: "Running Pro",
           price: 129.99,
           category: "running",
-          image: "https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=Running+Pro",
+          image: "RunningPro.jpeg",
           description: "Lightweight running shoes for professionals"
         },
         {
@@ -33,7 +33,7 @@ const ProductCatalog = ({ cart, setCart }) => {
           name: "Basketball Elite",
           price: 159.99,
           category: "basketball", 
-          image: "https://via.placeholder.com/300x200/E74C3C/FFFFFF?text=Basketball+Elite",
+          image: "BasketballElite.jpg",
           description: "High-performance basketball shoes"
         },
         {
@@ -41,7 +41,7 @@ const ProductCatalog = ({ cart, setCart }) => {
           name: "Casual Walk",
           price: 89.99,
           category: "casual",
-          image: "https://via.placeholder.com/300x200/27AE60/FFFFFF?text=Casual+Walk", 
+          image: "CasualWalk.jpeg",
           description: "Comfortable everyday shoes"
         },
         {
@@ -49,7 +49,7 @@ const ProductCatalog = ({ cart, setCart }) => {
           name: "Trail Master",
           price: 139.99,
           category: "hiking",
-          image: "https://via.placeholder.com/300x200/8E44AD/FFFFFF?text=Trail+Master",
+          image: "TrailMaster.jpg",
           description: "Durable hiking shoes for rough terrain"
         }
       ]);
