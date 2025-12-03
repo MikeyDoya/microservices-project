@@ -19,6 +19,8 @@ FROM public.ecr.aws/docker/library/nginx:alpine
 # Copy built app
 COPY --from=build /app/dist /usr/share/nginx/html
 
+COPY --from=build /app/public/images /usr/share/nginx/html/images
+
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
