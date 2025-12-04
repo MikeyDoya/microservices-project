@@ -7,10 +7,15 @@
 .empty-cart {
   text-align: center;
   padding: 4rem 2rem;
+  color: white;
 }
 
 .empty-state {
   margin-top: 2rem;
+}
+
+.empty-state p {
+  color: white;
 }
 
 .empty-icon {
@@ -131,7 +136,7 @@
 }
 
 .total-section h3 {
-  color: #2c3e50;
+  color: white;
   font-size: 1.5rem;
 }
 
@@ -150,4 +155,8 @@
 .checkout-btn:hover {
   background: #219a52;
   transform: translateY(-2px);
+}
+
+.shopping-cart h2 {
+  color: white;
 }
