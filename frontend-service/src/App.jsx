@@ -3,6 +3,7 @@ import Header from './components/Header';
 import ProductCatalog from './components/ProductCatalog';
 import ShoppingCart from './components/ShoppingCart';
 import Login from './components/Login';
+import MusicPlayer from './components/MusicPlayer';
 import './App.css';
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           </>
         )}
       </main>
+      <MusicPlayer />
     </div>
   );
 }
