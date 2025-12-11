@@ -23,7 +23,7 @@ const ProductCatalog = ({ cart, setCart }) => {
         {
           id: 1,
           name: "Running Pro",
-          price: 129.99,
+          price: 149.99,
           category: "running",
           image: "/images/RunningPro.jpeg",
           description: "Lightweight running shoes for professionals"
