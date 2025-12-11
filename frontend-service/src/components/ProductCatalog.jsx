@@ -39,7 +39,7 @@ const ProductCatalog = ({ cart, setCart }) => {
         {
           id: 3,
           name: "Casual Walk",
-          price: 89.99,
+          price: 199.99,
           category: "casual",
           image: "/images/CasualWalk.jpeg",
           description: "Comfortable everyday shoes"
