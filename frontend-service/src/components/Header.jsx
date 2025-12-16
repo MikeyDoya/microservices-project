@@ -22,7 +22,7 @@ const Header = ({ user, setUser, currentView, setCurrentView, cartCount }) => {
         onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
         onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
-        👟 Tienda de zapatillas
+        👟 Doya Running
       </h1>
       <nav className="nav">
         {user ? (

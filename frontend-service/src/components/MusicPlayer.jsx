@@ -10,8 +10,8 @@ const MusicPlayer = () => {
 
   // Lista de canciones (relativas desde public/music/)
   const songs = [
-    '/music/Qué Pena.mp3',
-    '/music/Carolina, Carol Bela.mp3',
+    '/music/All The Way Up.mp3',
+    '/music/Queens Of The Stone Age - In My Head.mp3',
     '/music/Daft Punk - Get Lucky (Official Audio) ft. Pharrell Williams, Nile Rodgers.mp3',
     '/music/Modjo - Lady (Hear Me Tonight) (Official Video).mp3'
   ];
