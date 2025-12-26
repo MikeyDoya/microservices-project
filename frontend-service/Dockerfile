@@ -1,29 +1,12 @@
-# Build stage
-FROM public.ecr.aws/docker/library/node:20-slim AS build
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-RUN npm install --include=dev
-
-# Copy source code
-COPY . .
-
-# Build the app
-RUN ./node_modules/vite/bin/vite.js build
-
-# Production stage
+# Use a lightweight Nginx image
 FROM public.ecr.aws/docker/library/nginx:alpine
 
-# Copy built app
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copy the Phaser game files (HTML, JS, assets)
+COPY . /usr/share/nginx/html
 
-COPY --from=build /app/public/images /usr/share/nginx/html/images
-
-# Copy nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
+# Expose port 80
 EXPOSE 80
 
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
+
