@@ -4,7 +4,7 @@
   "containerDefinitions": [
     {
       "name": "frontend-container",
-      "image": "033481624682.dkr.ecr.us-east-1.amazonaws.com/phaser-zombie-game:latest",
+      "image": "033481624682.dkr.ecr.us-east-1.amazonaws.com/frontend:latest",
       "essential": true,
       "portMappings": [
         {
