@@ -5,9 +5,9 @@ env:
     AWS_ACCOUNT_ID: "033481624682"
     AWS_DEFAULT_REGION: "us-east-1"
     CLUSTER_NAME: "containers-cluster"
-    ECR_REPO: "033481624682.dkr.ecr.us-east-1.amazonaws.com/phaser-zombie-game"
-    SERVICE_NAME: "phaser-zombie-game"
-    TASK_DEF: "phaser-zombie-game"
+    ECR_REPO: "033481624682.dkr.ecr.us-east-1.amazonaws.com/frontend"
+    SERVICE_NAME: "frontend-service"
+    TASK_DEF: "frontend-task-def"
 
 phases:
   pre_build:

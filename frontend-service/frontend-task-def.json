@@ -1,9 +1,9 @@
 {
   "requiresCompatibilities": ["FARGATE"],
-  "family": "phaser-zombie-game",
+  "family": "frontend-task-def",
   "containerDefinitions": [
     {
-      "name": "phaser-game-container",
+      "name": "frontend-container",
       "image": "033481624682.dkr.ecr.us-east-1.amazonaws.com/phaser-zombie-game:latest",
       "essential": true,
       "portMappings": [
@@ -16,7 +16,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/phaser-zombie-game",
+          "awslogs-group": "/ecs/frontend-service",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
