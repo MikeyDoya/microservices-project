@@ -17,15 +17,16 @@ phases:
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t $ECR_REPO:latest .
-      - docker tag $ECR_REPO:latest $ECR_REPO:$IMAGE_TAG
+      - cd $SERVICE_NAME
+      - docker build -t $ECR_REPO:latest -t $ECR_REPO:$IMAGE_TAG -t $ECR_REPO:$TIMESTAMP -f Dockerfile .
+      - cd ..
   post_build:
     commands:
       - echo Pushing the Docker image...
       - docker push $ECR_REPO:latest
       - docker push $ECR_REPO:$IMAGE_TAG
       - echo Registering task definition...
-      - aws ecs register-task-definition --cli-input-json file://$TASK_DEF.json --region $AWS_DEFAULT_REGION
+      - aws ecs register-task-definition --cli-input-json file://$SERVICE_NAME/$TASK_DEF.json --region $AWS_DEFAULT_REGION
       - echo Deploying service...
       - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $TASK_DEF --region $AWS_DEFAULT_REGION
 
